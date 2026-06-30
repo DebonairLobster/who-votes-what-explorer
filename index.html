@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <script src="data.js" defer></script>
+    <script src="map-data.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -24,18 +25,37 @@
 
     <main>
       <section class="hero shell">
-        <div class="eyebrow">The UK at the ballot box</div>
-        <h1>One election.<br /><em>650 different stories.</em></h1>
-        <p class="hero-copy">See how the vote shifted across the country. Compare places, parties and constituencies — without wrestling a spreadsheet.</p>
+        <div class="eyebrow">UK general election 2024</div>
+        <h1>Results by party.<br /><em>Results by place.</em></h1>
+        <p class="hero-copy">Explore vote shares, turnout and seat results across the UK, from national totals to individual constituencies.</p>
       </section>
 
       <section class="control-wrap shell" aria-label="Dashboard filters">
-        <div class="control-card">
+        <div class="mode-card">
+          <div><p class="kicker">Choose a view</p><h2>What do you want to explore?</h2></div>
+          <div class="mode-switch" role="group" aria-label="Choose regional or constituency information">
+            <button class="mode-button is-active" type="button" data-explore-mode="area"><strong>UK &amp; regions</strong><span>National, nation and regional totals</span></button>
+            <button class="mode-button" type="button" data-explore-mode="constituency"><strong>A constituency</strong><span>One seat and its local result</span></button>
+          </div>
+        </div>
+        <div class="control-card" id="area-control">
           <div class="control-heading">
             <span class="control-number">01</span>
-            <div><label for="area-filter">Choose an area</label><p>Every chart below will update.</p></div>
+            <div><label for="area-filter">Choose a UK area</label><p>Select the whole UK, a nation or a region.</p></div>
           </div>
           <div class="select-wrap select-wrap--large"><select id="area-filter" aria-label="Filter results by area"></select></div>
+        </div>
+        <div class="constituency-finder" id="constituency-control" hidden>
+          <div class="finder-copy">
+            <span class="control-number">01</span>
+            <div><label for="constituency-search">Find your constituency</label><p>Start typing its name to see the local result.</p></div>
+          </div>
+          <form id="constituency-form" class="finder-form">
+            <input id="constituency-search" list="constituency-options" type="search" placeholder="e.g. Bristol Central" autocomplete="off" />
+            <datalist id="constituency-options"></datalist>
+            <button type="submit">Show result</button>
+          </form>
+          <p id="constituency-status" class="finder-status" aria-live="polite"></p>
         </div>
       </section>
 
@@ -53,13 +73,13 @@
           </article>
           <article class="stat-card"><p>Votes counted</p><strong id="votes-counted">—</strong><span class="stat-detail">valid ballots</span></article>
           <article class="stat-card"><p>Turnout</p><strong id="turnout">—</strong><span class="stat-detail">of the electorate</span></article>
-          <article class="stat-card"><p>Seats</p><strong id="seat-count">—</strong><span class="stat-detail">constituencies</span></article>
+          <article class="stat-card" id="result-stat"><p id="result-stat-label">Seats</p><strong id="seat-count">—</strong><span class="stat-detail" id="seat-detail">constituencies</span></article>
         </div>
 
         <div class="visual-grid">
           <article class="panel panel--wide">
             <div class="panel-head">
-              <div><p class="kicker">The big picture</p><h3>Vote share by party</h3></div>
+              <div><p class="kicker">Vote totals</p><h3>Vote share by party</h3></div>
               <span class="unit-label">% of valid votes</span>
             </div>
             <div id="party-bars" class="party-bars" role="img" aria-label="Vote share by party"></div>
@@ -72,32 +92,91 @@
 
           <article class="panel panel--rank">
             <div class="panel-head panel-head--stack">
-              <div><p class="kicker">Strongholds</p><h3>Top constituencies</h3></div>
-              <div class="select-wrap select-wrap--small"><select id="ranking-party" aria-label="Choose party for constituency ranking"></select></div>
+              <div><p class="kicker" id="context-kicker">Highest vote shares</p><h3 id="context-title">Constituency ranking</h3></div>
+              <div class="select-wrap select-wrap--small" id="ranking-control"><select id="ranking-party" aria-label="Choose party for constituency ranking"></select></div>
             </div>
             <ol id="ranking-list" class="ranking-list"></ol>
+            <div id="local-result" class="local-result" hidden></div>
           </article>
+        </div>
+      </section>
+
+      <section class="map-section" id="map-section" hidden>
+        <div class="shell">
+          <div class="section-heading">
+            <div><p class="kicker">Constituency winners</p><h2>Election map</h2></div>
+            <p class="section-note">Every seat is coloured by the party that won it.</p>
+          </div>
+          <div class="map-toolbar">
+            <form id="map-search-form" class="map-search">
+              <label class="sr-only" for="map-search">Find a constituency on the map</label>
+              <input id="map-search" list="constituency-options" type="search" placeholder="Find a constituency" autocomplete="off" />
+              <button type="submit">Find</button>
+            </form>
+            <div class="map-toggle" role="group" aria-label="Choose map layout">
+              <button type="button" class="is-active" data-map-mode="geo">Geographic</button>
+              <button type="button" data-map-mode="hex">Equal-seat hex map</button>
+            </div>
+          </div>
+          <div class="map-card">
+            <div id="election-map" class="election-map" tabindex="0" aria-label="Scrollable election map"></div>
+            <div id="map-tooltip" class="map-tooltip" hidden></div>
+            <div id="map-legend" class="map-legend"></div>
+          </div>
+          <p class="map-note" id="map-note">Geographic boundaries show the actual area of each constituency. Select a seat to open its result.</p>
+          <p class="map-credit">Boundary geometry: ONS Open Geography and the UK Boundary Commissions. Equal-seat layout: Open Innovations, CC BY 4.0.</p>
+        </div>
+      </section>
+
+      <section class="changes-section shell" id="changes-section">
+        <div class="section-heading">
+          <div><p class="kicker">Changed hands</p><h2>Seat changes</h2></div>
+          <p class="section-note" id="changes-note">Gains are based on the result classification in the source data.</p>
+        </div>
+        <div class="changes-summary" id="changes-summary"></div>
+        <div class="changes-grid">
+          <article class="panel"><div class="panel-head"><h3>Seats gained</h3><span class="unit-label">from another party</span></div><div id="gains-list" class="change-bars"></div></article>
+          <article class="panel"><div class="panel-head"><h3>Seats lost</h3><span class="unit-label">to another party</span></div><div id="losses-list" class="change-bars"></div></article>
         </div>
       </section>
 
       <section class="compare-section">
         <div class="shell">
           <div class="section-heading section-heading--light">
-            <div><p class="kicker">Side by side</p><h2>Compare two places</h2></div>
-            <p class="section-note">Same election. Very different coalitions.</p>
+            <div><p class="kicker">Side by side</p><h2 id="compare-title">Compare two UK areas</h2></div>
+            <p class="section-note" id="compare-note">Choose the UK, a nation or a region.</p>
           </div>
           <div class="compare-controls">
-            <div><label for="compare-a">Place A</label><div class="select-wrap select-wrap--dark"><select id="compare-a"></select></div></div>
+            <div>
+              <label for="compare-a-search">Place A</label>
+              <div class="compare-input-wrap">
+                <input id="compare-a-search" class="compare-search" list="compare-a-options" type="text" autocomplete="off" />
+                <button id="compare-a-clear" class="compare-clear" type="button">Clear</button>
+              </div>
+              <datalist id="compare-a-options"></datalist>
+              <select id="compare-a" hidden aria-hidden="true"></select>
+            </div>
             <div class="versus" aria-hidden="true">vs</div>
-            <div><label for="compare-b">Place B</label><div class="select-wrap select-wrap--dark"><select id="compare-b"></select></div></div>
+            <div>
+              <label for="compare-b-search">Place B</label>
+              <div class="compare-input-wrap">
+                <input id="compare-b-search" class="compare-search" list="compare-b-options" type="text" autocomplete="off" />
+                <button id="compare-b-clear" class="compare-clear" type="button">Clear</button>
+              </div>
+              <datalist id="compare-b-options"></datalist>
+              <select id="compare-b" hidden aria-hidden="true"></select>
+            </div>
           </div>
-          <div class="compare-card"><div id="compare-chart" class="compare-chart" role="img" aria-label="Party vote share comparison"></div></div>
+          <div class="compare-card">
+            <p class="compare-help">Each party has one clearly labelled bar for each place. The note on the right translates the gap into votes out of every 100.</p>
+            <div id="compare-chart" class="compare-chart" role="img" aria-label="Party vote share comparison"></div>
+          </div>
         </div>
       </section>
 
       <section class="method shell">
         <p class="kicker">About the numbers</p>
-        <div><h2>A clearer view of the result.</h2><p>Vote shares are calculated from valid votes cast. Turnout uses valid plus invalid ballots as a share of the electorate. “Other” combines candidates outside the named party columns in the source data.</p></div>
+        <div><h2>How the figures are calculated</h2><p>Vote shares are calculated from valid votes cast. Turnout uses valid plus invalid ballots as a share of the electorate. “Other” combines candidates outside the named party columns in the source data. Seat gains use the result classification supplied in the dataset. Winning margins are classified as extremely marginal below 2%, marginal from 2% to under 10%, semi-safe from 10% to under 20%, majority from 20% to 40%, and extreme majority above 40%.</p></div>
       </section>
     </main>
 
