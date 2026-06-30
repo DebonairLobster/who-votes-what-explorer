@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Explore party vote share and constituency results from the 2024 UK general election." />
+    <title>Who Votes What — UK General Election 2024</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="data.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="top-rule" aria-hidden="true"></div>
+    <header class="site-header shell">
+      <a class="brand" href="#" aria-label="Who Votes What home">
+        <span class="brand-mark">W<span>∨</span>W</span>
+        <span class="brand-copy">Who votes what?</span>
+      </a>
+      <div class="edition"><span class="live-dot" aria-hidden="true"></span>2024 general election</div>
+    </header>
+
+    <main>
+      <section class="hero shell">
+        <div class="eyebrow">The UK at the ballot box</div>
+        <h1>One election.<br /><em>650 different stories.</em></h1>
+        <p class="hero-copy">See how the vote shifted across the country. Compare places, parties and constituencies — without wrestling a spreadsheet.</p>
+      </section>
+
+      <section class="control-wrap shell" aria-label="Dashboard filters">
+        <div class="control-card">
+          <div class="control-heading">
+            <span class="control-number">01</span>
+            <div><label for="area-filter">Choose an area</label><p>Every chart below will update.</p></div>
+          </div>
+          <div class="select-wrap select-wrap--large"><select id="area-filter" aria-label="Filter results by area"></select></div>
+        </div>
+      </section>
+
+      <section class="dashboard shell" aria-live="polite">
+        <div class="section-heading">
+          <div><p class="kicker">At a glance</p><h2 id="area-title">United Kingdom</h2></div>
+          <p id="area-summary" class="section-note"></p>
+        </div>
+
+        <div class="stat-grid" id="stat-grid">
+          <article class="stat-card stat-card--accent">
+            <p>Leading party</p>
+            <div class="leader-lockup"><span id="leader-swatch" class="party-swatch"></span><strong id="leader-name">—</strong></div>
+            <span id="leader-share" class="stat-detail">—</span>
+          </article>
+          <article class="stat-card"><p>Votes counted</p><strong id="votes-counted">—</strong><span class="stat-detail">valid ballots</span></article>
+          <article class="stat-card"><p>Turnout</p><strong id="turnout">—</strong><span class="stat-detail">of the electorate</span></article>
+          <article class="stat-card"><p>Seats</p><strong id="seat-count">—</strong><span class="stat-detail">constituencies</span></article>
+        </div>
+
+        <div class="visual-grid">
+          <article class="panel panel--wide">
+            <div class="panel-head">
+              <div><p class="kicker">The big picture</p><h3>Vote share by party</h3></div>
+              <span class="unit-label">% of valid votes</span>
+            </div>
+            <div id="party-bars" class="party-bars" role="img" aria-label="Vote share by party"></div>
+            <div class="composition-wrap">
+              <div class="composition-label"><span>How every 100 votes split</span><span>100%</span></div>
+              <div id="composition-bar" class="composition-bar" role="img" aria-label="Stacked party vote share"></div>
+              <div id="composition-legend" class="composition-legend"></div>
+            </div>
+          </article>
+
+          <article class="panel panel--rank">
+            <div class="panel-head panel-head--stack">
+              <div><p class="kicker">Strongholds</p><h3>Top constituencies</h3></div>
+              <div class="select-wrap select-wrap--small"><select id="ranking-party" aria-label="Choose party for constituency ranking"></select></div>
+            </div>
+            <ol id="ranking-list" class="ranking-list"></ol>
+          </article>
+        </div>
+      </section>
+
+      <section class="compare-section">
+        <div class="shell">
+          <div class="section-heading section-heading--light">
+            <div><p class="kicker">Side by side</p><h2>Compare two places</h2></div>
+            <p class="section-note">Same election. Very different coalitions.</p>
+          </div>
+          <div class="compare-controls">
+            <div><label for="compare-a">Place A</label><div class="select-wrap select-wrap--dark"><select id="compare-a"></select></div></div>
+            <div class="versus" aria-hidden="true">vs</div>
+            <div><label for="compare-b">Place B</label><div class="select-wrap select-wrap--dark"><select id="compare-b"></select></div></div>
+          </div>
+          <div class="compare-card"><div id="compare-chart" class="compare-chart" role="img" aria-label="Party vote share comparison"></div></div>
+        </div>
+      </section>
+
+      <section class="method shell">
+        <p class="kicker">About the numbers</p>
+        <div><h2>A clearer view of the result.</h2><p>Vote shares are calculated from valid votes cast. Turnout uses valid plus invalid ballots as a share of the electorate. “Other” combines candidates outside the named party columns in the source data.</p></div>
+      </section>
+    </main>
+
+    <footer><div class="shell footer-inner"><p>Who Votes What</p><p>Source: House of Commons Library · General election 2024</p></div></footer>
+    <div id="loading" class="loading" role="status">Loading election results…</div>
+    <div id="error" class="error-message" hidden><strong>We couldn’t load the election data.</strong><span>Check that data.js is in the same folder, then refresh the page.</span></div>
+  </body>
+</html>
