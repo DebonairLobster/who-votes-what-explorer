@@ -32,10 +32,10 @@ class MockElement {
 const selectIds = new Set(["area-filter", "ranking-party", "compare-a", "compare-b"]);
 const ids = [
   "area-filter", "ranking-party", "compare-a", "compare-b", "compare-a-search", "compare-b-search", "compare-a-clear", "compare-b-clear", "compare-a-options", "compare-b-options",
-  "constituency-options", "constituency-form", "constituency-search", "constituency-status", "map-search-form", "map-search", "map-section",
+  "constituency-options", "constituency-form", "constituency-search", "constituency-clear", "constituency-status", "dashboard-section", "map-search-form", "map-search", "map-search-clear", "map-section",
   "area-control", "constituency-control", "area-title", "area-summary", "leader-name", "leader-share", "leader-swatch", "votes-counted", "turnout",
   "result-stat", "result-stat-label", "seat-count", "seat-detail", "party-bars", "composition-bar", "composition-legend", "ranking-control", "ranking-list", "local-result", "context-kicker", "context-title",
-  "changes-section", "changes-summary", "gains-list", "losses-list", "changes-note", "compare-title", "compare-note", "compare-chart", "election-map", "map-tooltip",
+  "changes-section", "changes-summary", "gains-list", "losses-list", "changes-note", "compare-section", "compare-title", "compare-note", "compare-chart", "election-map", "map-tooltip",
   "map-legend", "map-note", "loading", "error", "map-card",
 ];
 const elements = new Map(ids.map((id) => [id, new MockElement(id, selectIds.has(id) ? "select" : "div")]));
@@ -62,13 +62,15 @@ await new Promise((resolve) => setTimeout(resolve, 20));
 
 assert.equal(elements.get("loading").hidden, true);
 assert.equal(elements.get("error").hidden, true);
-assert.equal((elements.get("party-bars").innerHTML.match(/class="bar-row"/g) || []).length, 6);
+assert.ok((elements.get("party-bars").innerHTML.match(/class="bar-row"/g) || []).length >= 6);
 assert.ok(elements.get("compare-chart").innerHTML.includes("London"));
 assert.equal(elements.get("compare-a").options.some((option) => option.value.startsWith("constituency:")), false);
 assert.equal((elements.get("election-map").innerHTML.match(/class="map-seat/g) || []).length, 650);
 
 modeButtons[1].dispatch("click");
-assert.equal(elements.get("map-section").hidden, false);
+assert.equal(elements.get("dashboard-section").hidden, true);
+assert.equal(elements.get("map-section").hidden, true);
+assert.equal(elements.get("compare-section").hidden, true);
 assert.equal(elements.get("changes-section").hidden, true);
 assert.equal(elements.get("compare-a").options.every((option) => option.value.startsWith("constituency:")), true);
 elements.get("compare-a-search").value = "Bristol Central";
@@ -78,9 +80,16 @@ elements.get("compare-a-clear").dispatch("click");
 assert.equal(elements.get("compare-a-search").value, "");
 elements.get("constituency-search").value = "Aberdeen North";
 elements.get("constituency-form").dispatch("submit");
+assert.equal(elements.get("dashboard-section").hidden, false);
+assert.equal(elements.get("map-section").hidden, false);
+assert.equal(elements.get("compare-section").hidden, false);
 assert.equal(elements.get("local-result").hidden, false);
 assert.match(elements.get("seat-count").textContent, /win$/);
 assert.ok(elements.get("party-bars").innerHTML.includes("SNP"));
-assert.equal((elements.get("party-bars").innerHTML.match(/class="bar-row"/g) || []).length, 6);
+assert.ok((elements.get("party-bars").innerHTML.match(/class="bar-row"/g) || []).length >= 6);
+elements.get("constituency-clear").dispatch("click");
+assert.equal(elements.get("constituency-search").value, "");
+elements.get("map-search-clear").dispatch("click");
+assert.equal(elements.get("map-search").value, "");
 
 console.log("Dashboard smoke test passed.");

@@ -51,7 +51,10 @@
             <div><label for="constituency-search">Find your constituency</label><p>Start typing its name to see the local result.</p></div>
           </div>
           <form id="constituency-form" class="finder-form">
-            <input id="constituency-search" list="constituency-options" type="search" placeholder="e.g. Bristol Central" autocomplete="off" />
+            <div class="search-input-wrap">
+              <input id="constituency-search" list="constituency-options" type="text" placeholder="e.g. Bristol Central" autocomplete="off" />
+              <button id="constituency-clear" class="compare-clear search-clear" type="button">Clear</button>
+            </div>
             <datalist id="constituency-options"></datalist>
             <button type="submit">Show result</button>
           </form>
@@ -59,7 +62,7 @@
         </div>
       </section>
 
-      <section class="dashboard shell" aria-live="polite">
+      <section class="dashboard shell" id="dashboard-section" aria-live="polite">
         <div class="section-heading">
           <div><p class="kicker">At a glance</p><h2 id="area-title">United Kingdom</h2></div>
           <p id="area-summary" class="section-note"></p>
@@ -110,7 +113,10 @@
           <div class="map-toolbar">
             <form id="map-search-form" class="map-search">
               <label class="sr-only" for="map-search">Find a constituency on the map</label>
-              <input id="map-search" list="constituency-options" type="search" placeholder="Find a constituency" autocomplete="off" />
+              <div class="search-input-wrap">
+                <input id="map-search" list="constituency-options" type="text" placeholder="Find a constituency" autocomplete="off" />
+                <button id="map-search-clear" class="compare-clear search-clear" type="button">Clear</button>
+              </div>
               <button type="submit">Find</button>
             </form>
             <div class="map-toggle" role="group" aria-label="Choose map layout">
@@ -140,7 +146,7 @@
         </div>
       </section>
 
-      <section class="compare-section">
+      <section class="compare-section" id="compare-section">
         <div class="shell">
           <div class="section-heading section-heading--light">
             <div><p class="kicker">Side by side</p><h2 id="compare-title">Compare two UK areas</h2></div>

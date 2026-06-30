@@ -48,7 +48,9 @@ select:focus-visible { box-shadow:0 0 0 3px #18372d30; }
 .finder-copy label { display:block; font:700 17px Manrope,sans-serif; }
 .finder-copy p { margin:3px 0 0; color:var(--ink-soft); font-size:13px; }
 .finder-form { display:grid; grid-template-columns:1fr auto; }
+.search-input-wrap { position:relative; min-width:0; }
 .finder-form input { min-width:0; padding:14px 16px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-right:0; border-radius:3px 0 0 3px; font:inherit; outline:none; }
+.finder-form .search-input-wrap input,.map-search .search-input-wrap input { width:100%; padding-right:72px; }
 .finder-form input:focus { border-color:var(--deep); box-shadow:0 0 0 3px #18372d18; }
 .finder-form button { padding:0 20px; color:var(--white); background:var(--deep); border:1px solid var(--deep); border-radius:0 3px 3px 0; font-weight:700; cursor:pointer; }
 .finder-form button:hover { background:#265044; }
@@ -163,6 +165,7 @@ select:focus-visible { box-shadow:0 0 0 3px #18372d30; }
 .compare-search:focus { border-color:var(--acid); box-shadow:0 0 0 3px #d9f23d1f; }
 .compare-clear { position:absolute; top:50%; right:7px; translate:0 -50%; padding:7px 9px; color:#dce6e2; background:#17372c; border:1px solid #57746b; border-radius:2px; font-size:10px; font-weight:700; cursor:pointer; }
 .compare-clear:hover,.compare-clear:focus-visible { color:var(--ink); background:var(--acid); border-color:var(--acid); outline:none; }
+.search-clear { z-index:2; }
 .select-wrap--dark select { padding:15px 45px 15px 16px; color:var(--white); background:#26483d; border-color:#4a695f; font-weight:600; }
 .versus { display:grid; place-items:center; height:51px; color:var(--acid); font-style:italic; font-weight:700; }
 .compare-card { padding:34px; color:var(--ink); background:var(--white); border-radius:3px; }
@@ -193,3 +196,5 @@ select:focus-visible { box-shadow:0 0 0 3px #18372d30; }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after{scroll-behavior:auto!important;transition:none!important} }
 @media (max-width:900px) { .election-map{height:700px}.election-map svg{height:680px} }
 @media (max-width:620px) { .election-map{height:570px;place-items:start center}.election-map svg{height:550px;min-width:360px;max-width:none} }
+.finder-form .search-clear,.map-search .search-clear { min-height:0; padding:7px 9px; color:#dce6e2; background:#17372c; border:1px solid #57746b; border-radius:2px; font-size:10px; font-weight:700; }
+.finder-form .search-clear:hover,.finder-form .search-clear:focus-visible,.map-search .search-clear:hover,.map-search .search-clear:focus-visible { color:var(--ink); background:var(--acid); border-color:var(--acid); }

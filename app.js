@@ -191,6 +191,14 @@ function renderComposition(stats) {
 function chooseDisplayedParties(stats) {
   const available = stats.sorted.filter((party) => party.votes > 0 && party.key !== "All other candidates" && party.key !== "remaining-other");
   const selected = available.slice(0, 5);
+  let nextIndex = selected.length;
+  while (nextIndex < available.length && selected.length) {
+    const shownVotes = selected.reduce((sum, party) => sum + party.votes, 0);
+    const otherVotes = Math.max(0, stats.valid - shownVotes);
+    if (otherVotes <= selected[selected.length - 1].votes) break;
+    selected.push(available[nextIndex]);
+    nextIndex += 1;
+  }
   const selectedVotes = selected.reduce((sum, party) => sum + party.votes, 0);
   const otherVotes = Math.max(0, stats.valid - selectedVotes);
   return [
@@ -369,6 +377,15 @@ function comparisonBreakdown(a, b) {
   };
   const available = [...byKey.keys()].map(entryFor).filter((party) => party.a > 0 || party.b > 0).sort((x, y) => Math.max(y.a, y.b) - Math.max(x.a, x.b));
   const selected = available.slice(0, 5);
+  let nextIndex = selected.length;
+  while (nextIndex < available.length && selected.length) {
+    const otherA = Math.max(0, 100 - selected.reduce((sum, party) => sum + party.a, 0));
+    const otherB = Math.max(0, 100 - selected.reduce((sum, party) => sum + party.b, 0));
+    const bottom = selected[selected.length - 1];
+    if (Math.max(otherA, otherB) <= Math.max(bottom.a, bottom.b)) break;
+    selected.push(available[nextIndex]);
+    nextIndex += 1;
+  }
   return [
     ...selected,
     {
@@ -425,14 +442,25 @@ function setExploreMode(mode, reset = true) {
   $("[data-explore-mode=\"constituency\"]").classList.toggle("is-active", mode === "constituency");
   $("#area-control").hidden = mode !== "area";
   $("#constituency-control").hidden = mode !== "constituency";
-  $("#map-section").hidden = mode !== "constituency";
-  $("#changes-section").hidden = mode === "constituency";
   if (mode === "area" && reset && $("#area-filter").value.startsWith("constituency:")) {
     $("#area-filter").value = "UK";
     renderDashboard();
   }
   if (changed) configureComparisons(mode);
-  if (mode === "constituency") $("#constituency-search").focus();
+  updateModeSections();
+  if (mode === "constituency") {
+    if (!$("#area-filter").value.startsWith("constituency:")) $("#constituency-status").textContent = "Search for a constituency to load its result.";
+    $("#constituency-search").focus();
+  }
+}
+
+function updateModeSections() {
+  const hasConstituency = $("#area-filter").value.startsWith("constituency:");
+  const waitingForConstituency = exploreMode === "constituency" && !hasConstituency;
+  $("#dashboard-section").hidden = waitingForConstituency;
+  $("#map-section").hidden = exploreMode !== "constituency" || waitingForConstituency;
+  $("#changes-section").hidden = exploreMode === "constituency";
+  $("#compare-section").hidden = waitingForConstituency;
 }
 
 function hexPoints(cx, cy, radius) {
@@ -527,6 +555,18 @@ function initialiseControls() {
   });
   $("#constituency-form").addEventListener("submit", handleConstituencySearch);
   $("#map-search-form").addEventListener("submit", handleMapSearch);
+  $("#constituency-clear").addEventListener("click", () => {
+    $("#constituency-search").value = "";
+    $("#constituency-status").textContent = "Search for a constituency to load its result.";
+    $("#constituency-search").focus();
+  });
+  $("#map-search-clear").addEventListener("click", () => {
+    $("#map-search").value = "";
+    $("#map-note").textContent = mapMode === "geo"
+      ? "Geographic boundaries show the actual area of each constituency. Select a seat to open its result."
+      : "Each hexagon represents one constituency, so every seat has equal visual weight. Select a hexagon to open its result.";
+    $("#map-search").focus();
+  });
   document.querySelectorAll("[data-explore-mode]").forEach((button) => button.addEventListener("click", () => setExploreMode(button.dataset.exploreMode)));
   document.querySelectorAll("[data-map-mode]").forEach((button) => button.addEventListener("click", () => {
     mapMode = button.dataset.mapMode;
